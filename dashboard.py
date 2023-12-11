@@ -37,7 +37,7 @@ def perform_eda(data):
 
 
 # Function for displaying histograms
-def display_histograms(df):
+def display_histograms(playoffs_df=playoffs_df,regular_df=regular_df):
     # Your histogram code here
     # ...
 
@@ -185,7 +185,7 @@ def main():
 
     # Display histograms
     st.subheader("Player Minutes Distribution:")
-    display_histograms(data)
+    display_histograms()
 
     # Display correlation heatmap
     st.subheader("Correlation Heatmap:")
