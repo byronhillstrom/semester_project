@@ -34,19 +34,20 @@ def perform_eda(data):
     #columns we can take the sum of
     total_cols = ['MIN', 'FGM', 'FGA', 'FG3M', 'FG3A', 'FTM', 'FTA', 
                 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'PF','PTS']
+    return playoffs_df, regular_df, total_cols
 
 
 # Function for displaying histograms
-def display_histograms(playoffs_df=playoffs_df,regular_df=regular_df):
+def display_histograms(playoffs_df,regular_df):
     # Your histogram code here
     # ...
 
     #histogram for percent of players that played a range of total minutes playoffs
     fig = px.histogram(x=playoffs_df['MIN'], histnorm='percent')
-    fig.show()
+    st.plotly_chart(fig)
 
     fig = px.histogram(x=regular_df['MIN'], histnorm='percent')
-    fig.show()
+    st.plotly_chart(fig)
 
     def hist_data(df=regular_df, min_MIN=0, min_GP=0):
         return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/\
@@ -60,40 +61,10 @@ def display_histograms(playoffs_df=playoffs_df,regular_df=regular_df):
                             name='Playoffs', xbins={'start':0,'end':46,'size':1}))
     fig.update_layout(barmode='overlay')
     fig.update_traces(opacity=0.5)
-    fig.show()
-
-# Function for displaying correlation heatmap
-def display_correlation_heatmap(df):
-    # Your correlation heatmap code here
-    # ...
-
-    # altering data to show stat per min played for better comparability 
-#filter out players with less then 50 min/season total
-    data_per_min = data.groupby(['PLAYER','PLAYER_ID','Year'])[total_cols].sum().reset_index()
-    for col in data_per_min.columns[4:]:
-        data_per_min[col] = data_per_min[col]/data_per_min['MIN']
-
-    data_per_min['FG%'] = data_per_min['FGM']/data_per_min['FGA'] #shooting percentage
-    data_per_min['3PT%'] = data_per_min['FG3M']/data_per_min['FG3A'] #shooting percentage
-    data_per_min['FT%'] = data_per_min['FTM']/data_per_min['FTA'] #shooting percentage
-    data_per_min['FG3A%'] = data_per_min['FG3A']/data_per_min['FGA'] #percentage of 3pt attems
-    data_per_min['PTS/FGA'] = data_per_min['PTS']/data_per_min['FGA'] #avg points per attempt
-    data_per_min['FG3M/FGM'] = data_per_min['FG3M']/data_per_min['FGM'] #percentage of field goal makes from behind arc
-    data_per_min['FTA/FGA'] = data_per_min['FTA']/data_per_min['FGA'] #free throw rate
-    data_per_min['TRU%'] = data_per_min['PTS']/(data_per_min['FGA']+0.475*data_per_min['FTA']) #true shooting percentage(not actual percetage)
-    data_per_min['AST_TOV'] = data_per_min['AST']/data_per_min['TOV'] #turnaover ratio
-
-    data_per_min = data_per_min[data_per_min['MIN']>=50]
-    data_per_min.drop(columns='PLAYER_ID', inplace=True)
-
-    fig = px.imshow(data_per_min.corr())
-
-    fig.show()
-    #dark purple shows negative correlation between stats
-    #bright yellow shows positive correlation between stats
+    st.plotly_chart(fig)
 
 # Function for displaying percentage change plots
-def display_percentage_change_plots(df):
+def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
     # Your percentage change plots code here
     # ...
 
@@ -119,17 +90,17 @@ def display_percentage_change_plots(df):
         i.drop(columns=['MIN','POSS_est'], inplace=True)
     
     #rs_change_df
-    playoffs_change_df
+    #playoffs_change_df
 
     comp_change_df = round(100*(playoffs_change_df-rs_change_df)/rs_change_df,3)
     comp_change_df['season_start_year'] = list(range(2010,2021))
-    comp_change_df
+    #comp_change_df
 
     fig = go.Figure()
     for col in comp_change_df.columns[1:]:
         fig.add_trace(go.Scatter(x=comp_change_df['season_start_year'],
                              y=comp_change_df[col], name=col))
-    fig.show()
+    st.plotly_chart(fig)
 
     change_df = data.groupby('season_start_year')[total_cols].sum().reset_index()
     change_df['POSS_est'] = change_df['FGA']-change_df['OREB']+change_df['TOV']+0.44*change_df['FTA']
@@ -156,7 +127,7 @@ def display_percentage_change_plots(df):
     for col in change_per48_df.columns[1:]:
         fig.add_trace(go.Scatter(x=change_per48_df['season_start_year'],
                                 y=change_per48_df[col], name=col))
-    fig.show()
+    st.plotly_chart(fig)
 
     change_per100_df = change_df.copy()
 
@@ -164,13 +135,13 @@ def display_percentage_change_plots(df):
         change_per100_df[col] = (change_per100_df[col]/change_per100_df['POSS_est'])*100
 
     change_per100_df.drop(columns=['MIN','POSS_est'], inplace=True)
-    change_per100_df
+    #change_per100_df
 
     fig = go.Figure()
     for col in change_per100_df.columns[1:]:
         fig.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
                                 y=change_per100_df[col], name=col))
-    fig.show()
+    st.plotly_chart(fig)
 
 
 # Main function
@@ -181,19 +152,19 @@ def main():
     data = load_data()
 
     # Perform EDA and display visualizations
-    perform_eda(data)
+    playoffs_df, regular_df , total_cols = perform_eda(data)
 
     # Display histograms
     st.subheader("Player Minutes Distribution:")
-    display_histograms()
+    display_histograms(playoffs_df, regular_df)
 
     # Display correlation heatmap
-    st.subheader("Correlation Heatmap:")
-    display_correlation_heatmap(data)
+    #st.subheader("Correlation Heatmap:")
+    #display_correlation_heatmap(playoffs_df, regular_df, total_cols, data)
 
     # Display percentage change plots
     st.subheader("Percentage Change Over Seasons:")
-    display_percentage_change_plots(data)
+    display_percentage_change_plots(playoffs_df, regular_df, total_cols, data)
 
 if __name__ == "__main__":
     main()
