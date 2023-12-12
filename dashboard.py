@@ -41,7 +41,8 @@ def perform_eda(data):
 def display_histograms(playoffs_df,regular_df):
     # Your histogram code here
     # ...
-
+###
+    
     #histogram for percent of players that played a range of total minutes playoffs
     fig = px.histogram(x=playoffs_df['MIN'], histnorm='percent', title = 'Playoffs Minutes Distribution')
     st.plotly_chart(fig)
@@ -52,6 +53,10 @@ def display_histograms(playoffs_df,regular_df):
     def hist_data(df=regular_df, min_MIN=0, min_GP=0):
         return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/ df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'GP']
 
+###
+    #bench_rotation = st.checkbox("Show Bench Rotation")
+    #hist_data_df = hist_data(regular_df, 50, 5) if not bench_rotation else hist_data(regular_df, 20, 5)
+    
     #rotation of bench and starter minutes in playoff vs regular season. 
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=hist_data(regular_df,50,5), histnorm='percent', name='RS',
