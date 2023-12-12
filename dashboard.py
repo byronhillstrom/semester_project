@@ -30,7 +30,7 @@ def perform_eda(data):
     data['Season_type'].replace('Regular%20Season', 'Regular Season', inplace=True)
     regular_df = data[data['Season_type'] == 'Regular Season']
     playoffs_df = data[data['Season_type'] == 'Playoffs']
-    data.columns
+    ###data.columns
     #columns we can take the sum of
     total_cols = ['MIN', 'FGM', 'FGA', 'FG3M', 'FG3A', 'FTM', 'FTA', 
                 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'PF','PTS']
@@ -43,15 +43,14 @@ def display_histograms(playoffs_df,regular_df):
     # ...
 
     #histogram for percent of players that played a range of total minutes playoffs
-    fig = px.histogram(x=playoffs_df['MIN'], histnorm='percent')
+    fig = px.histogram(x=playoffs_df['MIN'], histnorm='percent', title = 'Playoffs Minutes Distribution')
     st.plotly_chart(fig)
 
-    fig = px.histogram(x=regular_df['MIN'], histnorm='percent')
+    fig = px.histogram(x=regular_df['MIN'], histnorm='percent', title = 'Regular Season Minutes Distribution')
     st.plotly_chart(fig)
 
     def hist_data(df=regular_df, min_MIN=0, min_GP=0):
-        return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/\
-        df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'GP']
+        return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/ df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'GP']
 
     #rotation of bench and starter minutes in playoff vs regular season. 
     fig = go.Figure()
@@ -59,7 +58,7 @@ def display_histograms(playoffs_df,regular_df):
                             xbins={'start':0,'end':45,'size':1}))
     fig.add_trace(go.Histogram(x=hist_data(playoffs_df,5,1), histnorm='percent',
                             name='Playoffs', xbins={'start':0,'end':46,'size':1}))
-    fig.update_layout(barmode='overlay')
+    fig.update_layout(barmode='overlay', title = 'Rotation of Bench and Starter Minutes')
     fig.update_traces(opacity=0.5)
     st.plotly_chart(fig)
 
@@ -100,6 +99,7 @@ def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
     for col in comp_change_df.columns[1:]:
         fig.add_trace(go.Scatter(x=comp_change_df['season_start_year'],
                              y=comp_change_df[col], name=col))
+    fig.update_layout(title = 'Percentage Change Over Seasons')
     st.plotly_chart(fig)
 
     change_df = data.groupby('season_start_year')[total_cols].sum().reset_index()
@@ -127,6 +127,7 @@ def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
     for col in change_per48_df.columns[1:]:
         fig.add_trace(go.Scatter(x=change_per48_df['season_start_year'],
                                 y=change_per48_df[col], name=col))
+    fig.update_layout(title='Change Per 48 Minutes Over Seasons')
     st.plotly_chart(fig)
 
     change_per100_df = change_df.copy()
@@ -141,6 +142,7 @@ def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
     for col in change_per100_df.columns[1:]:
         fig.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
                                 y=change_per100_df[col], name=col))
+    fig.update_layout(title='Change Per 100 Possessions Over Seasons')
     st.plotly_chart(fig)
 
 
