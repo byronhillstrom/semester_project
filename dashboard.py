@@ -51,8 +51,6 @@ def display_histograms(playoffs_df,regular_df):
     def hist_data(df=regular_df, min_MIN=0, min_GP=0):
         return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/ df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'GP']
     
-st.text_input('These graphs show a compilation of minutes as a percentage played among all players where the X-axis shows the number of players at a certain play time and the Y-axis is the percentage of minutes.')
-
 ###
     #bench_rotation = st.checkbox("Show Bench Rotation")
     #hist_data_df = hist_data(regular_df, 50, 5) if not bench_rotation else hist_data(regular_df, 20, 5)
