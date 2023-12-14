@@ -2,9 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import numpy as np
-import time
-from matplotlib import pyplot as plt
+
 
 
 
@@ -52,20 +50,22 @@ def display_histograms(playoffs_df,regular_df):
 
     def hist_data(df=regular_df, min_MIN=0, min_GP=0):
         return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/ df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'GP']
+    
+st.text_input('These graphs show a compilation of minutes as a percentage played among all players where the X-axis shows the number of players at a certain play time and the Y-axis is the percentage of minutes.')
 
 ###
     #bench_rotation = st.checkbox("Show Bench Rotation")
     #hist_data_df = hist_data(regular_df, 50, 5) if not bench_rotation else hist_data(regular_df, 20, 5)
     
     #rotation of bench and starter minutes in playoff vs regular season. 
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(x=hist_data(regular_df,50,5), histnorm='percent', name='RS',
-                            xbins={'start':0,'end':45,'size':1}))
-    fig.add_trace(go.Histogram(x=hist_data(playoffs_df,5,1), histnorm='percent',
-                            name='Playoffs', xbins={'start':0,'end':46,'size':1}))
-    fig.update_layout(barmode='overlay', title = 'Rotation of Bench and Starter Minutes')
-    fig.update_traces(opacity=0.5)
-    st.plotly_chart(fig)
+    #fig = go.Figure()
+    #fig.add_trace(go.Histogram(x=hist_data(regular_df,50,5), histnorm='percent', name='RS',
+    #                        xbins={'start':0,'end':45,'size':1}))
+    #fig.add_trace(go.Histogram(x=hist_data(playoffs_df,5,1), histnorm='percent',
+    #                        name='Playoffs', xbins={'start':0,'end':46,'size':1}))
+    #fig.update_layout(barmode='overlay', title = 'Rotation of Bench and Starter Minutes')
+    #fig.update_traces(opacity=0.5)
+    #st.plotly_chart(fig)
 
 # Function for displaying percentage change plots
 def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
@@ -128,12 +128,12 @@ def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
 
     change_per48_df.drop(columns='MIN', inplace=True)
 
-    fig = go.Figure()
-    for col in change_per48_df.columns[1:]:
-        fig.add_trace(go.Scatter(x=change_per48_df['season_start_year'],
-                                y=change_per48_df[col], name=col))
-    fig.update_layout(title='Change Per 48 Minutes Over Seasons')
-    st.plotly_chart(fig)
+    #fig = go.Figure()
+    #for col in change_per48_df.columns[1:]:
+    #    fig.add_trace(go.Scatter(x=change_per48_df['season_start_year'],
+    #                            y=change_per48_df[col], name=col))
+    #fig.update_layout(title='Change Per 48 Minutes Over Seasons')
+    #st.plotly_chart(fig)
 
     change_per100_df = change_df.copy()
 
@@ -143,12 +143,12 @@ def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
     change_per100_df.drop(columns=['MIN','POSS_est'], inplace=True)
     #change_per100_df
 
-    fig = go.Figure()
-    for col in change_per100_df.columns[1:]:
-        fig.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
-                                y=change_per100_df[col], name=col))
-    fig.update_layout(title='Change Per 100 Possessions Over Seasons')
-    st.plotly_chart(fig)
+    #fig = go.Figure()
+    #for col in change_per100_df.columns[1:]:
+    #    fig.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+    #                            y=change_per100_df[col], name=col))
+    #fig.update_layout(title='Change Per 100 Possessions Over Seasons')
+    #st.plotly_chart(fig)
 
 
 # Main function
