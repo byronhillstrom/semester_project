@@ -67,87 +67,25 @@ def display_histograms(playoffs_df,regular_df):
     #st.plotly_chart(fig)
 
 # Function for displaying percentage change plots
-def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
-    # Your percentage change plots code here
-    # ...
+def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data, season_type):
+    # ... (your existing percentage change plot code)
 
-    rs_change_df = regular_df.groupby('season_start_year')[total_cols].sum().reset_index()
-    playoffs_change_df = playoffs_df.groupby('season_start_year')[total_cols].sum().reset_index()
+    comp_change_df = round(100*(playoffs_change_df - rs_change_df) / rs_change_df, 3)
+    comp_change_df['season_start_year'] = list(range(2010, 2021))
 
-    for i in [rs_change_df,playoffs_change_df]:
-        i['POSS_est'] = i['FGA']-i['OREB']+i['TOV']+0.44*i['FTA']
-        i['POSS_per_48'] = (i['POSS_est']/i['MIN'])*48*5
-        
-        i['FG%'] = i['FGM']/i['FGA']
-        i['3PT%'] = i['FG3M']/i['FG3A']
-        i['FT%'] = i['FTM']/i['FTA']
-        i['AST%'] = i['AST']/i['FGM']
-        i['FG3A%'] = i['FG3A']/i['FGA']
-        i['PTS/FGA'] = i['PTS']/i['FGA']
-        i['FG3M/FGM'] = i['FG3M']/i['FGM']
-        i['FTA/FGA'] = i['FTA']/i['FGA']
-        i['TRU%'] = 0.5*i['PTS']/(i['FGA']+0.475*i['FTA'])
-        i['AST_TOV'] = i['AST']/i['TOV']
-        for col in total_cols:
-            i[col] = 100*i[col]/i['POSS_est']
-        i.drop(columns=['MIN','POSS_est'], inplace=True)
-    
-    #rs_change_df
-    #playoffs_change_df
-
-    comp_change_df = round(100*(playoffs_change_df-rs_change_df)/rs_change_df,3)
-    comp_change_df['season_start_year'] = list(range(2010,2021))
-    #comp_change_df
+    # Filter by season type
+    if season_type == 'Playoff':
+        comp_change_df = comp_change_df[comp_change_df['season_type'] == 'Playoffs']
+    elif season_type == 'Regular Season':
+        comp_change_df = comp_change_df[comp_change_df['season_type'] == 'Regular Season']
 
     fig = go.Figure()
     for col in comp_change_df.columns[1:]:
         fig.add_trace(go.Scatter(x=comp_change_df['season_start_year'],
-                             y=comp_change_df[col], name=col))
-    fig.update_layout(title = 'Percentage Change Over Seasons')
+                                 y=comp_change_df[col], name=col))
+
+    fig.update_layout(title='Percentage Change Over Seasons')
     st.plotly_chart(fig)
-
-    change_df = data.groupby('season_start_year')[total_cols].sum().reset_index()
-    change_df['POSS_est'] = change_df['FGA']-change_df['OREB']+change_df['TOV']+0.44*change_df['FTA']
-    change_df = change_df[list(change_df.columns[0:2])+['POSS_est']+list(change_df.columns[2:-1])]
-
-    change_df['FG%'] = change_df['FGM']/change_df['FGA']
-    change_df['3PT%'] = change_df['FG3M']/change_df['FG3A']
-    change_df['FT%'] = change_df['FTM']/change_df['FTA']
-    change_df['AST%'] = change_df['AST']/change_df['FGM']
-    change_df['FG3A%'] = change_df['FG3A']/change_df['FGA']
-    change_df['PTS/FGA'] = change_df['PTS']/change_df['FGA']
-    change_df['FG3M/FGM'] = change_df['FG3M']/change_df['FGM']
-    change_df['FTA/FGA'] = change_df['FTA']/change_df['FGA']
-    change_df['TRU%'] = 0.5*change_df['PTS']/(change_df['FGA']+0.475*change_df['FTA'])
-    change_df['AST_TOV'] = change_df['AST']/change_df['TOV']
-
-    change_per48_df = change_df.copy()
-    for col in change_per48_df.columns[2:18]:
-        change_per48_df[col] = (change_per48_df[col]/change_per48_df['MIN'])*48*5
-
-    change_per48_df.drop(columns='MIN', inplace=True)
-
-    #fig = go.Figure()
-    #for col in change_per48_df.columns[1:]:
-    #    fig.add_trace(go.Scatter(x=change_per48_df['season_start_year'],
-    #                            y=change_per48_df[col], name=col))
-    #fig.update_layout(title='Change Per 48 Minutes Over Seasons')
-    #st.plotly_chart(fig)
-
-    change_per100_df = change_df.copy()
-
-    for col in change_per100_df.columns[3:18]:
-        change_per100_df[col] = (change_per100_df[col]/change_per100_df['POSS_est'])*100
-
-    change_per100_df.drop(columns=['MIN','POSS_est'], inplace=True)
-    #change_per100_df
-
-    #fig = go.Figure()
-    #for col in change_per100_df.columns[1:]:
-    #    fig.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
-    #                            y=change_per100_df[col], name=col))
-    #fig.update_layout(title='Change Per 100 Possessions Over Seasons')
-    #st.plotly_chart(fig)
 
 def team_performance_analysis(data, season_type):
     team_performance = data[data['Season_type'] == season_type].groupby('TEAM').agg(
@@ -170,20 +108,7 @@ def main():
     # Perform EDA and display visualizations
     playoffs_df, regular_df , total_cols = perform_eda(data)
 
-    # Display histograms
-    st.subheader("Player Minutes Distribution:")
-    display_histograms(playoffs_df, regular_df)
-
-    # Display correlation heatmap
-    #st.subheader("Correlation Heatmap:")
-    #display_correlation_heatmap(playoffs_df, regular_df, total_cols, data)
-
-    # Display percentage change plots
-    st.subheader("Percentage Change Over Seasons:")
-    display_percentage_change_plots(playoffs_df, regular_df, total_cols, data)
-
-
-   # Dropdown to select season type
+    # Dropdown to select season type
     season_type = st.sidebar.selectbox("Select Season Type", data['Season_type'].unique())
 
     # Team performance analysis
@@ -197,6 +122,19 @@ def main():
         color=alt.value('blue')
     ).properties(width=600)
     st.altair_chart(chart_pts, use_container_width=True)
+
+    # Display histograms
+    st.subheader("Player Minutes Distribution:")
+    display_histograms(playoffs_df, regular_df)
+
+    # Display correlation heatmap
+    #st.subheader("Correlation Heatmap:")
+    #display_correlation_heatmap(playoffs_df, regular_df, total_cols, data)
+
+    # Display percentage change plots
+    st.sidebar.subheader("Percentage Change Over Seasons:")
+    season_type_filter = st.sidebar.selectbox("Select Season Type", ['Playoff', 'Regular Season'])
+    display_percentage_change_plots(playoffs_df, regular_df, total_cols, data, season_type_filter)
 
 
 if __name__ == "__main__":
