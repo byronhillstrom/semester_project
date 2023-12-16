@@ -67,24 +67,43 @@ def display_histograms(playoffs_df,regular_df):
     #st.plotly_chart(fig)
 
 # Function for displaying percentage change plots
-def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data, season_type):
-    # ... (your existing percentage change plot code)
+def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
+    # Your percentage change plots code here
+    # ...
 
-    comp_change_df = round(100*(playoffs_change_df - rs_change_df) / rs_change_df, 3)
-    comp_change_df['season_start_year'] = list(range(2010, 2021))
+    rs_change_df = regular_df.groupby('season_start_year')[total_cols].sum().reset_index()
+    playoffs_change_df = playoffs_df.groupby('season_start_year')[total_cols].sum().reset_index()
 
-    # Filter by season type
-    if season_type == 'Playoff':
-        comp_change_df = comp_change_df[comp_change_df['season_type'] == 'Playoffs']
-    elif season_type == 'Regular Season':
-        comp_change_df = comp_change_df[comp_change_df['season_type'] == 'Regular Season']
+    for i in [rs_change_df,playoffs_change_df]:
+        i['POSS_est'] = i['FGA']-i['OREB']+i['TOV']+0.44*i['FTA']
+        i['POSS_per_48'] = (i['POSS_est']/i['MIN'])*48*5
+        
+        i['FG%'] = i['FGM']/i['FGA']
+        i['3PT%'] = i['FG3M']/i['FG3A']
+        i['FT%'] = i['FTM']/i['FTA']
+        i['AST%'] = i['AST']/i['FGM']
+        i['FG3A%'] = i['FG3A']/i['FGA']
+        i['PTS/FGA'] = i['PTS']/i['FGA']
+        i['FG3M/FGM'] = i['FG3M']/i['FGM']
+        i['FTA/FGA'] = i['FTA']/i['FGA']
+        i['TRU%'] = 0.5*i['PTS']/(i['FGA']+0.475*i['FTA'])
+        i['AST_TOV'] = i['AST']/i['TOV']
+        for col in total_cols:
+            i[col] = 100*i[col]/i['POSS_est']
+        i.drop(columns=['MIN','POSS_est'], inplace=True)
+    
+    #rs_change_df
+    #playoffs_change_df
+
+    comp_change_df = round(100*(playoffs_change_df-rs_change_df)/rs_change_df,3)
+    comp_change_df['season_start_year'] = list(range(2010,2021))
+    #comp_change_df
 
     fig = go.Figure()
     for col in comp_change_df.columns[1:]:
         fig.add_trace(go.Scatter(x=comp_change_df['season_start_year'],
-                                 y=comp_change_df[col], name=col))
-
-    fig.update_layout(title='Percentage Change Over Seasons')
+                             y=comp_change_df[col], name=col))
+    fig.update_layout(title = 'Percentage Change Over Seasons')
     st.plotly_chart(fig)
 
 def team_performance_analysis(data, season_type):
@@ -132,9 +151,8 @@ def main():
     #display_correlation_heatmap(playoffs_df, regular_df, total_cols, data)
 
     # Display percentage change plots
-    st.sidebar.subheader("Percentage Change Over Seasons:")
-    season_type_filter = st.sidebar.selectbox("Select Season Type", ['Playoff', 'Regular Season'])
-    display_percentage_change_plots(playoffs_df, regular_df, total_cols, data, season_type_filter)
+    st.subheader("Percentage Change Over Seasons:")
+    display_percentage_change_plots(playoffs_df, regular_df, total_cols, data)
 
 
 if __name__ == "__main__":
