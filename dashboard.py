@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import altair as alt
 
 
 
@@ -148,6 +149,16 @@ def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
     #fig.update_layout(title='Change Per 100 Possessions Over Seasons')
     #st.plotly_chart(fig)
 
+def team_performance_analysis(data, season_type):
+    team_performance = data[data['Season_type'] == season_type].groupby('TEAM').agg(
+        Average_PTS=('PTS', 'mean'),
+        Average_MIN=('MIN', 'mean'),
+        Average_FG_PCT=('FG_PCT', 'mean'),
+        Average_FG3_PCT=('FG3_PCT', 'mean'),
+        Total_REB=('REB', 'sum')
+    ).reset_index()
+
+    return team_performance
 
 # Main function
 def main():
@@ -170,6 +181,23 @@ def main():
     # Display percentage change plots
     st.subheader("Percentage Change Over Seasons:")
     display_percentage_change_plots(playoffs_df, regular_df, total_cols, data)
+
+
+   # Dropdown to select season type
+    season_type = st.sidebar.selectbox("Select Season Type", data['Season_type'].unique())
+
+    # Team performance analysis
+    team_performance = team_performance_analysis(data, season_type)
+
+    # Plotting Team-wise Metrics
+    st.subheader('Average Points per Team')
+    chart_pts = alt.Chart(team_performance).mark_bar().encode(
+        x='TEAM',
+        y='Average_PTS',
+        color=alt.value('blue')
+    ).properties(width=600)
+    st.altair_chart(chart_pts, use_container_width=True)
+
 
 if __name__ == "__main__":
     main()
