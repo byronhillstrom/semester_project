@@ -4,7 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import altair as alt
-from scipy.stats import gaussian_kde
 import numpy as np
 
 
@@ -105,29 +104,27 @@ def team_performance_analysis(data, season_type):
 
     return team_performance
 
-
-# Function to display AST_TOV histogram
+# Function to display AST_TOV histogram with hover information
 def display_ast_tov_histogram(selected_df):
-    # Your AST_TOV histogram code here
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Create a Plotly histogram
+    fig = px.histogram(selected_df, x='AST_TOV', nbins=30, 
+                       labels={'AST_TOV': 'AST_TOV', 'count': 'Frequency'},
+                       title='Distribution of Assist-to-Turnover Ratio (AST_TOV)',
+                       opacity=0.7,
+                       hover_data=['AST_TOV'],  # Add AST_TOV to hover information
+                       )
+    
+    # Customize the layout
+    fig.update_layout(
+        xaxis_title='AST_TOV',
+        yaxis_title='Frequency',
+        showlegend=False,
+        height=600,
+        width=800,
+    )
 
-    # Plot histogram
-    ax.hist(selected_df['AST_TOV'], bins=30, color='darkorchid', alpha=0.7, density=True, label='Histogram')
-
-    # Calculate KDE
-    kde = gaussian_kde(selected_df['AST_TOV'])
-    x_vals = np.linspace(selected_df['AST_TOV'].min(), selected_df['AST_TOV'].max(), 100)
-    y_vals = kde(x_vals)
-
-    # Plot KDE as a trend line
-    ax.plot(x_vals, y_vals, color='red', label='Kernel Density Estimate (KDE)')
-
-    ax.set_title('Distribution of Assist-to-Turnover Ratio (AST_TOV)')
-    ax.set_xlabel('AST_TOV')
-    ax.set_ylabel('Frequency')
-    ax.legend()
-
-    st.pyplot(fig)
+    # Show the plot
+    st.plotly_chart(fig)
 
 
 # Main function
