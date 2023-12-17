@@ -110,14 +110,14 @@ def team_performance_analysis(data, season_type):
 def display_ast_tov_histogram(selected_df):
     # Your AST_TOV histogram code here
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.hist(selected_df['AST_TOV'], bins=30, color='red', alpha=0.7, density=True)
+    ax.hist(selected_df['AST_TOV'], bins=30, color='darkorchid', alpha=0.7, density=True)
     ax.set_title('Distribution of Assist-to-Turnover Ratio (AST_TOV)')
     ax.set_xlabel('AST_TOV')
     ax.set_ylabel('Frequency')
 
     # Add KDE (Kernel Density Estimate)
     if st.checkbox("Show Trendline"):
-        kde = selected_df['AST_TOV'].plot(kind='kde', color='blue', ax=ax)
+        kde = selected_df['AST_TOV'].plot(kind='kde', color='black', ax=ax)
         kde.legend(['KDE'])
     
     st.pyplot(fig)
