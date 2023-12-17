@@ -3,5 +3,5 @@ pandas
 plotly
 matplotlib
 altair
-scipy
+scipy==1.7.3
 numpy
