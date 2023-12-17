@@ -4,7 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import altair as alt
-from scipy.stats import gaussian_kde
 
 
 # Function to load data
