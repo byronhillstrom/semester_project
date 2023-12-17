@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 import altair as alt
-
+import seaborn as sns
 
 
 
@@ -52,19 +53,6 @@ def display_histograms(playoffs_df,regular_df):
     def hist_data(df=regular_df, min_MIN=0, min_GP=0):
         return df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'MIN']/ df.loc[(df['MIN']>=min_MIN) & (df['GP']>=min_GP), 'GP']
     
-###
-    #bench_rotation = st.checkbox("Show Bench Rotation")
-    #hist_data_df = hist_data(regular_df, 50, 5) if not bench_rotation else hist_data(regular_df, 20, 5)
-    
-    #rotation of bench and starter minutes in playoff vs regular season. 
-    #fig = go.Figure()
-    #fig.add_trace(go.Histogram(x=hist_data(regular_df,50,5), histnorm='percent', name='RS',
-    #                        xbins={'start':0,'end':45,'size':1}))
-    #fig.add_trace(go.Histogram(x=hist_data(playoffs_df,5,1), histnorm='percent',
-    #                        name='Playoffs', xbins={'start':0,'end':46,'size':1}))
-    #fig.update_layout(barmode='overlay', title = 'Rotation of Bench and Starter Minutes')
-    #fig.update_traces(opacity=0.5)
-    #st.plotly_chart(fig)
 
 # Function for displaying percentage change plots
 def display_percentage_change_plots(playoffs_df, regular_df, total_cols, data):
@@ -117,6 +105,17 @@ def team_performance_analysis(data, season_type):
 
     return team_performance
 
+# Function to display AST_TOV histogram
+def display_ast_tov_histogram(selected_df):
+    # Your AST_TOV histogram code here
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.histplot(selected_df['AST_TOV'], bins=30, kde=True, color='skyblue', ax=ax)
+    ax.set_title('Distribution of Assist-to-Turnover Ratio (AST_TOV)')
+    ax.set_xlabel('AST_TOV')
+    ax.set_ylabel('Frequency')
+    st.pyplot(fig)
+
+
 # Main function
 def main():
     st.title("NBA Player Performance Dashboard")
@@ -127,11 +126,17 @@ def main():
     # Perform EDA and display visualizations
     playoffs_df, regular_df , total_cols = perform_eda(data)
 
+    # Dropdown to filter by player
+    selected_player = st.sidebar.selectbox("Select Player", data['PLAYER'].unique())
+
     # Dropdown to select season type
     season_type = st.sidebar.selectbox("Select Season Type", data['Season_type'].unique())
 
     # Team performance analysis
     team_performance = team_performance_analysis(data, season_type)
+
+    # Filter data based on selections
+    selected_df = data[(data['PLAYER'] == selected_player) & (data['Season_type'] == season_type)]
 
     # Plotting Team-wise Metrics
     st.subheader('Average Points per Team')
@@ -153,6 +158,10 @@ def main():
     # Display percentage change plots
     st.subheader("Percentage Change Over Seasons:")
     display_percentage_change_plots(playoffs_df, regular_df, total_cols, data)
+
+    # Display AST_TOV histogram
+    st.subheader(f'Distribution of AST_TOV for {selected_player} - {season_type}')
+    display_ast_tov_histogram(selected_df)
 
 
 if __name__ == "__main__":
