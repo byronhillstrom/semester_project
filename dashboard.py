@@ -105,18 +105,21 @@ def team_performance_analysis(data, season_type):
 
     return team_performance
 
+
 # Function to display AST_TOV histogram
 def display_ast_tov_histogram(selected_df):
     # Your AST_TOV histogram code here
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.hist(selected_df['AST_TOV'], bins=30, density=True, color='skyblue', edgecolor='black')
-    
-    # Add kernel density estimate (distribution line)
-    sns.kdeplot(selected_df['AST_TOV'], color='red', ax=ax)
-    
+    ax.hist(selected_df['AST_TOV'], bins=30, color='red', alpha=0.7, density=True)
     ax.set_title('Distribution of Assist-to-Turnover Ratio (AST_TOV)')
     ax.set_xlabel('AST_TOV')
     ax.set_ylabel('Frequency')
+
+    # Add KDE (Kernel Density Estimate)
+    if st.checkbox("Show Trendline"):
+        kde = selected_df['AST_TOV'].plot(kind='kde', color='blue', ax=ax)
+        kde.legend(['KDE'])
+    
     st.pyplot(fig)
 
 
@@ -147,7 +150,7 @@ def main():
     chart_pts = alt.Chart(team_performance).mark_bar().encode(
         x='TEAM',
         y='Average_PTS',
-        color=alt.value('blue')
+        color=alt.value('mediumspringgreen')
     ).properties(width=600)
     st.altair_chart(chart_pts, use_container_width=True)
 
