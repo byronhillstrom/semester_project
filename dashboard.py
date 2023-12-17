@@ -109,7 +109,11 @@ def team_performance_analysis(data, season_type):
 def display_ast_tov_histogram(selected_df):
     # Your AST_TOV histogram code here
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.histplot(selected_df['AST_TOV'], bins=30, kde=True, color='skyblue', ax=ax)
+    ax.hist(selected_df['AST_TOV'], bins=30, density=True, color='skyblue', edgecolor='black')
+    
+    # Add kernel density estimate (distribution line)
+    sns.kdeplot(selected_df['AST_TOV'], color='red', ax=ax)
+    
     ax.set_title('Distribution of Assist-to-Turnover Ratio (AST_TOV)')
     ax.set_xlabel('AST_TOV')
     ax.set_ylabel('Frequency')
